@@ -1,15 +1,46 @@
 package main
 
 import (
-	"fmt"
-	"github.com/moonprism/kindleM/site/manhuagui"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
+	"github.com/moonprism/kindleM/api"
+	"github.com/moonprism/kindleM/model"
+	"github.com/swaggo/gin-swagger" // gin-swagger middleware
+	"github.com/swaggo/gin-swagger/swaggerFiles" // swagger embed files
+	"log"
+
+	_ "github.com/moonprism/kindleM/docs"
 )
 
+// @title kindleM API
+// @version 0.0.1
+// @description
 func main() {
 
-	result :=  manhuagui.Search("剑风")
+	engine, err := xorm.NewEngine("mysql", "root:123456@/app?charset=utf8")
 
-	chapters := manhuagui.ChapterList(&result[0])
+	if err != nil {
+		log.Printf("%v", err)
+	}
 
-	fmt.Printf("%v", chapters)
+	err = engine.Sync2(new(model.Picture))
+	err = engine.Sync2(new(model.Manga))
+	err = engine.Sync2(new(model.Chapter))
+	err = engine.Sync2(new(model.Mobi))
+
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
+
+	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
+
+
+	r.GET("/search/:query", api.Search)
+	r.GET("/chapter", api.Chapters)
+
+	r.Run(":8001")
+
 }

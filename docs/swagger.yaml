@@ -1,0 +1,114 @@
+basePath: '{{.BasePath}}'
+definitions:
+  model.Chapter:
+    properties:
+      created:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      manga_id:
+        type: integer
+      status:
+        type: boolean
+      title:
+        type: string
+      total:
+        type: integer
+      updated:
+        type: string
+    type: object
+  model.Manga:
+    properties:
+      alias:
+        type: string
+      author:
+        type: string
+      cover:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      intro:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      source:
+        type: integer
+      updated:
+        type: string
+    type: object
+  model.MangaDetail:
+    properties:
+      alias:
+        type: string
+      author:
+        type: string
+      chapters:
+        items:
+          $ref: '#/definitions/model.Chapter'
+        type: array
+      cover:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      intro:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      source:
+        type: integer
+      updated:
+        type: string
+    type: object
+host: '{{.Host}}'
+info:
+  contact: {}
+  license: {}
+  title: kindleM API
+  version: 0.0.1
+paths:
+  /chapter:
+    get:
+      parameters:
+      - description: ' '
+        in: query
+        name: manga_url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MangaDetail'
+            type: object
+      summary: get manga chapter list
+  /search/{query}:
+    get:
+      operationId: search-manga
+      parameters:
+      - description: ' '
+        in: path
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Manga'
+            type: object
+      summary: search manga
+swagger: "2.0"

@@ -14,24 +14,20 @@ import (
 
 const MANHUAGUI_URL  = "https://www.manhuagui.com"
 
-type ManHuaGui struct {
-
-}
-
 func Search(query string) (result []model.Manga) {
 	doc, err := util.GetFetchDocument(fmt.Sprintf("https://www.manhuagui.com/s/%s.html", query))
 	if err != nil {
 		log.Printf("http request error: %v", err)
 	}
 
-	doc.Find(".book-detail").Each(func(i int, selection *goquery.Selection) {
+	doc.Find(".book-result").First().Find(".cf").Each(func(i int, selection *goquery.Selection) {
 		node := model.Manga{
-			Name: selection.Find("a").First().Text(),
+			Name: selection.Find(".book-detail").First().Find("a").First().Text(),
 			Link: MANHUAGUI_URL + selection.Find("a").First().AttrOr("href", ""),
 			Author: selection.Find(".tags").Eq(2).Find("a").Text(),
 			Alias: selection.Find(".tags").Eq(3).Find("a").First().Text(),
-			Cover: selection.Find(".bcover").Find("img").AttrOr("src", ""),
-			Source: model.SOURCE_MANHUAGUI,
+			Intro: selection.Find(".intro").First().Text(),
+			Cover: selection.Find(".bcover").First().Find("img").First().AttrOr("src", ""),
 		}
 		result = append(result, node)
 	})
@@ -39,11 +35,24 @@ func Search(query string) (result []model.Manga) {
 	return result
 }
 
+func setMangaInfo(manga *model.Manga, doc *goquery.Document){
+	mangaDoc := doc.Find(".book-cont").First()
+	manga.Name = mangaDoc.Find("h1").First().Text()
+	manga.Author = mangaDoc.Find(".detail-list").First().Find("li").Eq(1).Find("span").Eq(1).Find("a").First().Text()
+	manga.Cover = mangaDoc.Find(".hcover").First().Find("img").First().AttrOr("src", "")
+	mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("strong").First().Remove()
+	manga.Alias = mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("a").First().Text()
+	manga.Intro = mangaDoc.Find("#intro-cut").Text()
+	manga.Source = model.SOURCE_MANHUAGUI
+}
+
 func ChapterList(manga *model.Manga) (result []model.Chapter)  {
 	doc, err := util.GetFetchDocument(manga.Link)
 	if err != nil {
 		log.Printf("http request error: %v", err)
 	}
+
+	setMangaInfo(manga, doc)
 
 	var resBack []model.Chapter
 
@@ -98,8 +107,9 @@ func PictureList(chapter *model.Chapter) (result []model.Picture) {
 			Index: page,
 		}
 		err = chromedp.Run(ctx,
-			chromedp.WaitVisible("#mangaFile", chromedp.ByQuery),
+			chromedp.WaitVisible(`#mangaFile`, chromedp.ByQuery),
 			chromedp.AttributeValue(`#mangaFile`, "src", &node.Src, nil, chromedp.ByQuery),
+			chromedp.Click(`#next`, chromedp.ByQuery),
 		)
 		result = append(result, node)
 	}

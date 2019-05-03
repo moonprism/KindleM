@@ -1,14 +1,27 @@
 package util
 
 import (
+	"crypto/tls"
 	"github.com/PuerkitoBio/goquery"
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
+func newClient() *http.Client {
+	return &http.Client{
+		Timeout:   15 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+}
+
 func GetFetchDocument(url string) (doc *goquery.Document, err error) {
-	res, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+
+	res, err := newClient().Do(req)
 	if err != nil {
 		return
 	}
@@ -21,7 +34,6 @@ func GetFetchDocument(url string) (doc *goquery.Document, err error) {
 }
 
 func DownloadPicture(url string, referer string, fileNmae string) error {
-	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -29,7 +41,7 @@ func DownloadPicture(url string, referer string, fileNmae string) error {
 	}
 
 	req.Header.Set("Referer", referer)
-	res, err := client.Do(req)
+	res, err := newClient().Do(req)
 
 	if err != nil {
 		return err

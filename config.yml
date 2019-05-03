@@ -1,0 +1,5 @@
+storage:
+  host: "mysql"
+  db: "app"
+  user: "root"
+  passwd: "123456"
