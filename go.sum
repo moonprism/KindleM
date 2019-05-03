@@ -2,12 +2,16 @@ github.com/PuerkitoBio/goquery v1.5.0 h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP
 github.com/PuerkitoBio/goquery v1.5.0/go.mod h1:qD2PgZ9lccMbQlc7eEOjaeRlFQON7xY8kdmcsrnKqMg=
 github.com/andybalholm/cascadia v1.0.0 h1:hOCXnnZ5A+3eVDX8pvgl4kofXv2ELss0bKcqRySc45o=
 github.com/andybalholm/cascadia v1.0.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
+github.com/bmaupin/go-epub v0.5.0 h1:ptOZQuO3YBRytuhRPsHUJh5bRmvP66/GvB+NWTC2dyE=
+github.com/bmaupin/go-epub v0.5.0/go.mod h1:4RBr0Zo03mRGOyGAcc25eLOqIPCkMbfz+tINVmH6clQ=
 github.com/chromedp/cdproto v0.0.0-20190420234220-b15521df8a75 h1:PWeIUFloU7f5T4IJgYncp7VVBG/BucyAiRFufCKEHkw=
 github.com/chromedp/cdproto v0.0.0-20190420234220-b15521df8a75/go.mod h1:xquOK9dIGFlLaIGI4c6IyfLI/Gz0LiYYuJtzhsUODgI=
 github.com/chromedp/chromedp v0.2.0 h1:+pJcAGF7Ll9hMr22moNRXK5hskMTZlFOogTlHvHslTA=
 github.com/chromedp/chromedp v0.2.0/go.mod h1:bSPr/quj5R3tUD/O8cBnOz8sOoHXZELEMd9/ICLjq+8=
 github.com/disintegration/imaging v1.6.0 h1:nVPXRUUQ36Z7MNf0O77UzgnOb1mkMMor7lmJMJXc/mA=
 github.com/disintegration/imaging v1.6.0/go.mod h1:xuIt+sRxDFrHS0drzXUlCJthkJ8k7lkkUojDSR247MQ=
+github.com/gofrs/uuid v3.1.0+incompatible h1:q2rtkjaKT4YEr6E1kamy0Ha4RtepWlQBedyHx0uzKwA=
+github.com/gofrs/uuid v3.1.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH/Q=
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/knq/sysutil v0.0.0-20181215143952-f05b59f0f307 h1:vl4eIlySbjertFaNwiMjXsGrFVK25aOWLq7n+3gh2ls=
