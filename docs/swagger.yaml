@@ -19,6 +19,43 @@ definitions:
       updated:
         type: string
     type: object
+  model.ChapterList:
+    items:
+      properties:
+        created:
+          type: string
+        id:
+          type: integer
+        link:
+          type: string
+        manga_id:
+          type: integer
+        status:
+          type: boolean
+        title:
+          type: string
+        total:
+          type: integer
+        updated:
+          type: string
+      type: object
+    type: array
+  model.ChapterRow:
+    properties:
+      link:
+        type: string
+      title:
+        type: string
+    type: object
+  model.ChapterRowList:
+    items:
+      properties:
+        link:
+          type: string
+        title:
+          type: string
+      type: object
+    type: array
   model.Manga:
     properties:
       alias:
@@ -76,7 +113,7 @@ info:
   title: kindleM API
   version: 0.0.1
 paths:
-  /chapter:
+  /chapters:
     get:
       parameters:
       - description: ' '
@@ -93,6 +130,25 @@ paths:
             $ref: '#/definitions/model.MangaDetail'
             type: object
       summary: get manga chapter list
+  /download:
+    get:
+      parameters:
+      - description: ' '
+        in: body
+        name: download_list
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChapterRowList'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChapterList'
+            type: object
+      summary: download chapter list
   /search/{query}:
     get:
       operationId: search-manga

@@ -1,46 +1,34 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
 	"github.com/moonprism/kindleM/api"
-	"github.com/moonprism/kindleM/model"
-	"github.com/swaggo/gin-swagger" // gin-swagger middleware
-	"github.com/swaggo/gin-swagger/swaggerFiles" // swagger embed files
-	"log"
+	"github.com/moonprism/kindleM/lib"
 
 	_ "github.com/moonprism/kindleM/docs"
+	"github.com/swaggo/gin-swagger"              // gin-swagger middleware
+	"github.com/swaggo/gin-swagger/swaggerFiles" // swagger embed files
 )
 
 // @title kindleM API
 // @version 0.0.1
 // @description
 func main() {
+	lib.InitLogrus()
 
-	engine, err := xorm.NewEngine("mysql", "root:123456@/app?charset=utf8")
-
-	if err != nil {
-		log.Printf("%v", err)
-	}
-
-	err = engine.Sync2(new(model.Picture))
-	err = engine.Sync2(new(model.Manga))
-	err = engine.Sync2(new(model.Chapter))
-	err = engine.Sync2(new(model.Mobi))
-
-	if err != nil {
-		log.Printf("%v\n", err)
-	}
-
+	// run
 	r := gin.Default()
 
+	// swagger
 	r.GET("/swagger/*any", ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "NAME_OF_ENV_VARIABLE"))
 
-
 	r.GET("/search/:query", api.Search)
-	r.GET("/chapter", api.Chapters)
+	r.GET("/chapters", api.Chapters)
+	r.POST("/download", api.DownLoad)
 
-	r.Run(":8001")
-
+	if err := r.Run(":8001"); err != nil {
+		fmt.Printf("run gin : %v\n", err)
+	}
 }

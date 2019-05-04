@@ -59,11 +59,9 @@ func ChapterList(manga *model.Manga) (result []model.Chapter)  {
 	for eqIndex := 1; eqIndex >= 0; eqIndex-- {
 		doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
 			UlSelection.Find("li").Each(func(i2 int, LiSelection *goquery.Selection) {
-				node := model.Chapter{
-					MangaId: manga.Id,
-					Link:    MANHUAGUI_URL + LiSelection.Find("a").First().AttrOr("href", ""),
-					Title:   LiSelection.Find("a").First().AttrOr("title", ""),
-				}
+				node := model.Chapter{MangaId: manga.Id}
+				node.Link = MANHUAGUI_URL + LiSelection.Find("a").First().AttrOr("href", "")
+				node.Title = LiSelection.Find("a").First().AttrOr("title", "")
 				resBack = append(resBack, node)
 			})
 			for i3 := len(resBack)-1; i3 >= 0; i3-- {

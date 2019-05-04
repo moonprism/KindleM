@@ -7,7 +7,6 @@ build:
 run:
 	sudo docker-compose up -d
 
-re:
-	make build
+restart:
 	sudo docker-compose down
 	sudo docker-compose up -d

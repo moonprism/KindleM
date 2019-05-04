@@ -4,11 +4,19 @@ import "time"
 
 type Mobi struct {
 	Id	int64	`xorm:"pk autoincr 'id'"`
-	MobiFile	string	`xorm:"varchar(250) 'mobi_file'"'`
-	EpubFile	string	`xorm:"varchar(250) 'epub_file'"'`
-	ProcessInfo	string	`xorm:"text(250) 'process_info'"`
+	MobiMeta
+	MobiFile	string	`xorm:"'mobi_file'" json:"mobi_file"`
+	EpubFile	string	`xorm:"'epub_file'" json:"epub_file"`
+	ProcessInfo	string	`xorm:"text 'process_info'"`
 	Created time.Time `xorm:"created"`
 	Updated time.Time `xorm:"updated"`
+}
+
+// MobiMeta is base book file info
+type MobiMeta struct {
+	Title	string
+	Author	string
+	Cover	string
 }
 
 type MobiXChapter struct {

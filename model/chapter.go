@@ -5,10 +5,19 @@ import "time"
 type Chapter struct {
 	Id	int64	`xorm:"pk autoincr 'id'" json:"id"`
 	MangaId	int64	`xorm:"index 'manga_id'" json:"manga_id"`
-	Title	string	`xorm:"varchar(250) 'title'" json:"title"`
-	Link	string	`xorm:"varchar(250)	'link'" json:"link"`
-	Total	int	`xorm:"'total'" json:"total"`
-	Status	bool	`xorm:"'status'" json:"status"`
+	ChapterRow `xorm:"extends -"`
+	Total	int	`json:"total"`
+	Status	bool	`json:"status"`
 	Created time.Time `xorm:"created" json:"created"`
 	Updated time.Time `xorm:"updated" json:"updated"`
 }
+
+// ChapterRow is chapter base info
+type ChapterRow struct {
+	Title	string	`json:"title"`
+	Link	string	`xorm:"unique" json:"link"`
+}
+
+type ChapterRowList []ChapterRow
+
+type ChapterList []Chapter 

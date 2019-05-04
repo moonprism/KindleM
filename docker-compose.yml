@@ -22,3 +22,5 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: app
+    ports:
+      - "3306:3306"

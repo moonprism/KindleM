@@ -9,7 +9,7 @@
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/chapter": {
+        "/chapters": {
             "get": {
                 "produces": [
                     "application/json"
@@ -30,6 +30,35 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/model.MangaDetail"
+                        }
+                    }
+                }
+            }
+        },
+        "/download": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "download chapter list",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "download_list",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.ChapterRowList"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.ChapterList"
                         }
                     }
                 }
@@ -90,6 +119,63 @@
                 },
                 "updated": {
                     "type": "string"
+                }
+            }
+        },
+        "model.ChapterList": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "created": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "manga_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "updated": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model.ChapterRow": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ChapterRowList": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "link": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
                 }
             }
         },
