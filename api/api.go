@@ -21,26 +21,27 @@ func Search(context *gin.Context) {
 // @Summary get manga chapter list
 // @Produce  json
 // @Param manga_url query string true " "
-// @Success 200 {object} model.MangaDetail
+// @Success 200 {object} model.MangaInfo
 // @Router /chapters [get]
 func Chapters(context *gin.Context) {
 	mangaUrl := context.Query("manga_url")
 
 	manga := &model.Manga{Link:mangaUrl}
+
 	has, _ := lib.XEngine().Get(manga)
-
-	result := manhuagui.ChapterList(manga)
-
 	if !has {
 		lib.XEngine().Insert(manga)
-	} else {
-		lib.XEngine().Id(manga.Id).Update(manga)
+	}
+	result := manhuagui.ChapterList(manga)
+
+	if manga.Name != "" {
+		lib.XEngine().Insert(manga)
 	}
 
-	var response model.MangaDetail
+	var response model.MangaInfo
 	response.Manga = manga
 	for _, r := range result {
-		response.Chapters = append(response.Chapters, r)
+		response.ChapterRowList = append(response.ChapterRowList, r)
 	}
 
 	context.JSON(200, response)
@@ -50,11 +51,11 @@ func Chapters(context *gin.Context) {
 // @Produce  json
 // @Param download_list body model.ChapterRowList true " "
 // @Success 200 {object} model.ChapterList
-// @Router /download [get]
+// @Router /download [POST]
 func DownLoad(context *gin.Context) {
 //	mangaUrl := context.Query("manga_url")
 
 //	manga := &model.Manga{Link:mangaUrl}
 
-
+	// todo
 }

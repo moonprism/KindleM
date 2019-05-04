@@ -44,6 +44,8 @@ definitions:
     properties:
       link:
         type: string
+      manga_id:
+        type: integer
       title:
         type: string
     type: object
@@ -52,6 +54,8 @@ definitions:
       properties:
         link:
           type: string
+        manga_id:
+          type: integer
         title:
           type: string
       type: object
@@ -79,16 +83,23 @@ definitions:
       updated:
         type: string
     type: object
-  model.MangaDetail:
+  model.MangaInfo:
     properties:
+      ChapterRowList:
+        items:
+          properties:
+            link:
+              type: string
+            manga_id:
+              type: integer
+            title:
+              type: string
+          type: object
+        type: array
       alias:
         type: string
       author:
         type: string
-      chapters:
-        items:
-          $ref: '#/definitions/model.Chapter'
-        type: array
       cover:
         type: string
       created:
@@ -127,11 +138,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.MangaDetail'
+            $ref: '#/definitions/model.MangaInfo'
             type: object
       summary: get manga chapter list
   /download:
-    get:
+    post:
       parameters:
       - description: ' '
         in: body

@@ -4,7 +4,6 @@ import "time"
 
 type Chapter struct {
 	Id	int64	`xorm:"pk autoincr 'id'" json:"id"`
-	MangaId	int64	`xorm:"index 'manga_id'" json:"manga_id"`
 	ChapterRow `xorm:"extends -"`
 	Total	int	`json:"total"`
 	Status	bool	`json:"status"`
@@ -14,6 +13,7 @@ type Chapter struct {
 
 // ChapterRow is chapter base info
 type ChapterRow struct {
+	MangaId	int64	`xorm:"index 'manga_id'" json:"manga_id"`
 	Title	string	`json:"title"`
 	Link	string	`xorm:"unique" json:"link"`
 }

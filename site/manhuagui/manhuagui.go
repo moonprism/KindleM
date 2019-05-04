@@ -46,7 +46,7 @@ func setMangaInfo(manga *model.Manga, doc *goquery.Document){
 	manga.Source = model.SOURCE_MANHUAGUI
 }
 
-func ChapterList(manga *model.Manga) (result []model.Chapter)  {
+func ChapterList(manga *model.Manga) (result []model.ChapterRow)  {
 	doc, err := util.GetFetchDocument(manga.Link)
 	if err != nil {
 		log.Printf("http request error: %v", err)
@@ -54,20 +54,20 @@ func ChapterList(manga *model.Manga) (result []model.Chapter)  {
 
 	setMangaInfo(manga, doc)
 
-	var resBack []model.Chapter
-
+	var resBack []model.ChapterRow
 	for eqIndex := 1; eqIndex >= 0; eqIndex-- {
 		doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
 			UlSelection.Find("li").Each(func(i2 int, LiSelection *goquery.Selection) {
-				node := model.Chapter{MangaId: manga.Id}
+				var node  model.ChapterRow
+				node.MangaId = manga.Id
 				node.Link = MANHUAGUI_URL + LiSelection.Find("a").First().AttrOr("href", "")
 				node.Title = LiSelection.Find("a").First().AttrOr("title", "")
 				resBack = append(resBack, node)
 			})
 			for i3 := len(resBack)-1; i3 >= 0; i3-- {
-				result = append([]model.Chapter{resBack[i3]}, result...)
+				result = append([]model.ChapterRow{resBack[i3]}, result...)
 			}
-			resBack = []model.Chapter{}
+			resBack = []model.ChapterRow{}
 		})
 	}
 

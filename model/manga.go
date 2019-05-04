@@ -19,7 +19,7 @@ type Manga struct {
 	Updated time.Time `xorm:"updated" json:"updated"`
 }
 
-type MangaDetail struct {
-	*Manga
-	Chapters []Chapter `json:"chapters"`
+type MangaInfo struct {
+	* Manga
+	ChapterRowList
 }

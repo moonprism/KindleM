@@ -1,9 +1,9 @@
 storage:
-  host: "mysql"
+  host: "localhost"
   port: "3306"
   database: "app"
   username: "root"
   password: "123456"
 
 log:
-  file: "./log/app.log"
+  file: "/dev/null"

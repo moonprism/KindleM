@@ -29,14 +29,14 @@
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/model.MangaDetail"
+                            "$ref": "#/definitions/model.MangaInfo"
                         }
                     }
                 }
             }
         },
         "/download": {
-            "get": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -160,6 +160,9 @@
                 "link": {
                     "type": "string"
                 },
+                "manga_id": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -172,6 +175,9 @@
                 "properties": {
                     "link": {
                         "type": "string"
+                    },
+                    "manga_id": {
+                        "type": "integer"
                     },
                     "title": {
                         "type": "string"
@@ -214,20 +220,31 @@
                 }
             }
         },
-        "model.MangaDetail": {
+        "model.MangaInfo": {
             "type": "object",
             "properties": {
+                "ChapterRowList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "link": {
+                                "type": "string"
+                            },
+                            "manga_id": {
+                                "type": "integer"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
                 "alias": {
                     "type": "string"
                 },
                 "author": {
                     "type": "string"
-                },
-                "chapters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Chapter"
-                    }
                 },
                 "cover": {
                     "type": "string"
