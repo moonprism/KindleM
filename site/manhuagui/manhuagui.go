@@ -7,12 +7,25 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/package/util"
+	"github.com/pkg/errors"
 	"log"
 	"strconv"
 	"strings"
 )
 
 const MANHUAGUI_URL  = "https://www.manhuagui.com"
+
+type Manga struct {
+	*model.Manga
+	Doc *goquery.Document
+}
+
+func NewManga(model *model.Manga) (IManga *Manga, err error) {
+	IManga = new(Manga)
+	IManga.Manga = model
+	IManga.Doc, err = util.GetFetchDocument(model.Link)
+	return
+}
 
 func Search(query string) (result []model.Manga) {
 	doc, err := util.GetFetchDocument(fmt.Sprintf("https://www.manhuagui.com/s/%s.html", query))
@@ -35,42 +48,40 @@ func Search(query string) (result []model.Manga) {
 	return result
 }
 
-func setMangaInfo(manga *model.Manga, doc *goquery.Document){
-	mangaDoc := doc.Find(".book-cont").First()
-	manga.Name = mangaDoc.Find("h1").First().Text()
-	manga.Author = mangaDoc.Find(".detail-list").First().Find("li").Eq(1).Find("span").Eq(1).Find("a").First().Text()
-	manga.Cover = mangaDoc.Find(".hcover").First().Find("img").First().AttrOr("src", "")
-	mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("strong").First().Remove()
-	manga.Alias = mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("a").First().Text()
-	manga.Intro = mangaDoc.Find("#intro-cut").Text()
-	manga.Source = model.SOURCE_MANHUAGUI
+func (IManga *Manga) SyncInfo() (err error) {
+	mangaDoc := IManga.Doc.Find(".book-cont").First()
+	manga := IManga.Manga
+	if mangaDoc.Nodes != nil {
+		manga.Name = mangaDoc.Find("h1").First().Text()
+		manga.Author = mangaDoc.Find(".detail-list").First().Find("li").Eq(1).Find("span").Eq(1).Find("a").First().Text()
+		manga.Cover = mangaDoc.Find(".hcover").First().Find("img").First().AttrOr("src", "")
+		mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("strong").First().Remove()
+		manga.Alias = mangaDoc.Find(".detail-list").First().Find("li").Eq(2).Find("a").First().Text()
+		manga.Intro = mangaDoc.Find("#intro-cut").Text()
+		manga.Source = model.SOURCE_MANHUAGUI
+	} else {
+		err = errors.New("go-query .book-cont not found in "+manga.Link)
+	}
+	return
 }
 
-func ChapterList(manga *model.Manga) (result []model.ChapterRow)  {
-	doc, err := util.GetFetchDocument(manga.Link)
-	if err != nil {
-		log.Printf("http request error: %v", err)
-	}
-
-	setMangaInfo(manga, doc)
-
+func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList, err error) {
 	var resBack []model.ChapterRow
 	for eqIndex := 1; eqIndex >= 0; eqIndex-- {
-		doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
+		IManga.Doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
 			UlSelection.Find("li").Each(func(i2 int, LiSelection *goquery.Selection) {
 				var node  model.ChapterRow
-				node.MangaId = manga.Id
+				node.MangaId = IManga.Id
 				node.Link = MANHUAGUI_URL + LiSelection.Find("a").First().AttrOr("href", "")
 				node.Title = LiSelection.Find("a").First().AttrOr("title", "")
 				resBack = append(resBack, node)
 			})
 			for i3 := len(resBack)-1; i3 >= 0; i3-- {
-				result = append([]model.ChapterRow{resBack[i3]}, result...)
+				chapterRowList = append([]model.ChapterRow{resBack[i3]}, chapterRowList...)
 			}
 			resBack = []model.ChapterRow{}
 		})
 	}
-
 	return
 }
 

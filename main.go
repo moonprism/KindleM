@@ -6,6 +6,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/moonprism/kindleM/api"
 	"github.com/moonprism/kindleM/lib"
+	"io"
+	"os"
 
 	_ "github.com/moonprism/kindleM/docs"
 	"github.com/swaggo/gin-swagger"              // gin-swagger middleware
@@ -18,6 +20,11 @@ import (
 func main() {
 	lib.InitLogrus()
 
+	file, _ := os.OpenFile(lib.Config.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+
+	gin.DisableConsoleColor()
+	gin.DefaultWriter = io.MultiWriter(file)
+	gin.DefaultErrorWriter = io.MultiWriter(file)
 	// run
 	r := gin.Default()
 

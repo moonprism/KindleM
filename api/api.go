@@ -5,6 +5,7 @@ import (
 	"github.com/moonprism/kindleM/lib"
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/site/manhuagui"
+	"net/http"
 )
 
 // @Summary search manga
@@ -29,20 +30,28 @@ func Chapters(context *gin.Context) {
 	manga := &model.Manga{Link:mangaUrl}
 
 	has, _ := lib.XEngine().Get(manga)
-	if !has {
-		lib.XEngine().Insert(manga)
-	}
-	result := manhuagui.ChapterList(manga)
 
-	if manga.Name != "" {
+	IManga, err := manhuagui.NewManga(manga)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+		return
+	}
+
+	if err = IManga.SyncInfo(); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+		return
+	}
+
+	if has {
+		lib.XEngine().Id(manga.Id).Update(manga)
+	} else {
 		lib.XEngine().Insert(manga)
 	}
 
 	var response model.MangaInfo
 	response.Manga = manga
-	for _, r := range result {
-		response.ChapterRowList = append(response.ChapterRowList, r)
-	}
+	response.ChapterRowList, _ = IManga.FetchChapterRowList()
 
 	context.JSON(200, response)
 }

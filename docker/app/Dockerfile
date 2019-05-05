@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add openssh
+RUN apk add bash
 
 RUN mkdir /app
 RUN mkdir /app/download

@@ -7,18 +7,18 @@ import (
 )
 
 func InitLogrus () {
-	if err := setLogFile(); err != nil {
+	if err := setFile(Config.Log.File); err != nil {
 		log.Fatalf("%v\n", err)
 		return
 	}
 }
 
-func setLogFile() (err error) {
-	_, err = os.Stat(Config.Log.File)
+func setFile(filePath string) (err error) {
+	_, err = os.Stat(filePath)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
-		file, err := os.Create(Config.Log.File)
+		file, err := os.Create(filePath)
 		if err != nil {
 			return err
 		}
@@ -28,7 +28,7 @@ func setLogFile() (err error) {
 		}()
 	}
 
-	file, err := os.OpenFile(Config.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		return
 	}
