@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
+	"github.com/moonprism/kindleM/lib"
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/package/util"
 	"github.com/pkg/errors"
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const MANHUAGUI_URL  = "https://www.manhuagui.com"
@@ -85,18 +87,23 @@ func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList,
 	return
 }
 
-func PictureList(chapter *model.Chapter) (result []model.Picture) {
+func SyncPictures(chapter *model.Chapter) {
 
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
-		// chromedp.WithDebugf(log.Printf),
+		//chromedp.WithDebugf(log.Printf),
 	)
+	defer cancel()
+
+	ctx, cancel = context.WithTimeout(ctx, 60 * time.Second)
 	defer cancel()
 
 	var pageSelectHtml string
 
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(chapter.Link),
+		chromedp.Sleep(5 * time.Second),
+		chromedp.Reload(),
 		chromedp.WaitVisible("#pageSelect", chromedp.ByQuery),
 		chromedp.InnerHTML(`#pageSelect`, &pageSelectHtml, chromedp.ByQuery),
 	)
@@ -110,17 +117,18 @@ func PictureList(chapter *model.Chapter) (result []model.Picture) {
 	chapter.Total, _ = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
 
 	for page := 1; page <= chapter.Total; page++ {
-		node := model.Picture{
+		picture := model.Picture{
 			MangaId: chapter.MangaId,
 			ChapterId: chapter.Id,
 			Index: page,
+			Referer: chapter.Link,
 		}
 		err = chromedp.Run(ctx,
 			chromedp.WaitVisible(`#mangaFile`, chromedp.ByQuery),
-			chromedp.AttributeValue(`#mangaFile`, "src", &node.Src, nil, chromedp.ByQuery),
+			chromedp.AttributeValue(`#mangaFile`, "src", &picture.Src, nil, chromedp.ByQuery),
 			chromedp.Click(`#next`, chromedp.ByQuery),
 		)
-		result = append(result, node)
+		go lib.DownloadPicture(&picture)
 	}
 
 	return

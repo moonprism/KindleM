@@ -62,9 +62,29 @@ func Chapters(context *gin.Context) {
 // @Success 200 {object} model.ChapterList
 // @Router /download [POST]
 func DownLoad(context *gin.Context) {
-//	mangaUrl := context.Query("manga_url")
+	var chapterRowList model.ChapterRowList
+	if err := context.BindJSON(&chapterRowList); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
+	}
 
-//	manga := &model.Manga{Link:mangaUrl}
+	var chapterList model.ChapterList
 
-	// todo
+	for _, chapterRow := range chapterRowList {
+		var chapter model.Chapter
+		chapter.ChapterRow = chapterRow
+		has, _ := lib.XEngine().Get(&chapter)
+		if !has {
+			lib.XEngine().Insert(&chapter)
+		}
+		chapterList = append(chapterList, chapter)
+	}
+
+	for _, chapter := range chapterList {
+		if chapter.Status == false {
+				manhuagui.SyncPictures(&chapter)
+				lib.XEngine().Id(chapter.Id).Update(chapter)
+		}
+	}
+
+	context.JSON(http.StatusOK, chapterList)
 }

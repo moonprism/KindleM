@@ -5,11 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/moonprism/kindleM/api"
-	"github.com/moonprism/kindleM/lib"
-	"io"
-	"os"
-
 	_ "github.com/moonprism/kindleM/docs"
+	"github.com/moonprism/kindleM/lib"
 	"github.com/swaggo/gin-swagger"              // gin-swagger middleware
 	"github.com/swaggo/gin-swagger/swaggerFiles" // swagger embed files
 )
@@ -20,11 +17,11 @@ import (
 func main() {
 	lib.InitLogrus()
 
-	file, _ := os.OpenFile(lib.Config.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-
-	gin.DisableConsoleColor()
-	gin.DefaultWriter = io.MultiWriter(file)
-	gin.DefaultErrorWriter = io.MultiWriter(file)
+	//file, _ := os.OpenFile(lib.Config.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	//
+	//gin.DisableConsoleColor()
+	//gin.DefaultWriter = io.MultiWriter(file)
+	//gin.DefaultErrorWriter = io.MultiWriter(file)
 	// run
 	r := gin.Default()
 

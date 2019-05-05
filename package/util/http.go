@@ -11,7 +11,7 @@ import (
 
 func newClient() *http.Client {
 	return &http.Client{
-		Timeout:   15 * time.Second,
+		Timeout:   33 * time.Second,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
@@ -33,7 +33,7 @@ func GetFetchDocument(url string) (doc *goquery.Document, err error) {
 	return
 }
 
-func DownloadPicture(url string, referer string, fileNmae string) error {
+func DownloadPicture(url string, referer string, fileName string) error {
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -42,7 +42,6 @@ func DownloadPicture(url string, referer string, fileNmae string) error {
 
 	req.Header.Set("Referer", referer)
 	res, err := newClient().Do(req)
-
 	if err != nil {
 		return err
 	}
@@ -51,7 +50,7 @@ func DownloadPicture(url string, referer string, fileNmae string) error {
 		err = res.Body.Close()
 	}()
 
-	file, err := os.Create(fileNmae)
+	file, err := os.Create(fileName)
 	if err != nil {
 		return err
 	}
