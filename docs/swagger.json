@@ -35,6 +35,32 @@
                 }
             }
         },
+        "/check/chapter/{chapter_id}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "check chapter all picture download again",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "chapter_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.PictureList"
+                        }
+                    }
+                }
+            }
+        },
         "/download": {
             "post": {
                 "produces": [
@@ -96,6 +122,9 @@
         "model.Chapter": {
             "type": "object",
             "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "created": {
                     "type": "string"
                 },
@@ -107,9 +136,6 @@
                 },
                 "manga_id": {
                     "type": "integer"
-                },
-                "status": {
-                    "type": "boolean"
                 },
                 "title": {
                     "type": "string"
@@ -127,6 +153,9 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
                     "created": {
                         "type": "string"
                     },
@@ -138,9 +167,6 @@
                     },
                     "manga_id": {
                         "type": "integer"
-                    },
-                    "status": {
-                        "type": "boolean"
                     },
                     "title": {
                         "type": "string"
@@ -269,6 +295,73 @@
                 },
                 "updated": {
                     "type": "string"
+                }
+            }
+        },
+        "model.Picture": {
+            "type": "object",
+            "properties": {
+                "chapterId": {
+                    "type": "integer"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "mangaId": {
+                    "type": "integer"
+                },
+                "referer": {
+                    "type": "string"
+                },
+                "src": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PictureList": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "chapterId": {
+                        "type": "integer"
+                    },
+                    "created": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "index": {
+                        "type": "integer"
+                    },
+                    "mangaId": {
+                        "type": "integer"
+                    },
+                    "referer": {
+                        "type": "string"
+                    },
+                    "src": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "updated": {
+                        "type": "string"
+                    }
                 }
             }
         }

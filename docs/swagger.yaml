@@ -2,6 +2,8 @@ basePath: '{{.BasePath}}'
 definitions:
   model.Chapter:
     properties:
+      count:
+        type: integer
       created:
         type: string
       id:
@@ -10,8 +12,6 @@ definitions:
         type: string
       manga_id:
         type: integer
-      status:
-        type: boolean
       title:
         type: string
       total:
@@ -22,6 +22,8 @@ definitions:
   model.ChapterList:
     items:
       properties:
+        count:
+          type: integer
         created:
           type: string
         id:
@@ -30,8 +32,6 @@ definitions:
           type: string
         manga_id:
           type: integer
-        status:
-          type: boolean
         title:
           type: string
         total:
@@ -117,6 +117,50 @@ definitions:
       updated:
         type: string
     type: object
+  model.Picture:
+    properties:
+      chapterId:
+        type: integer
+      created:
+        type: string
+      id:
+        type: integer
+      index:
+        type: integer
+      mangaId:
+        type: integer
+      referer:
+        type: string
+      src:
+        type: string
+      status:
+        type: boolean
+      updated:
+        type: string
+    type: object
+  model.PictureList:
+    items:
+      properties:
+        chapterId:
+          type: integer
+        created:
+          type: string
+        id:
+          type: integer
+        index:
+          type: integer
+        mangaId:
+          type: integer
+        referer:
+          type: string
+        src:
+          type: string
+        status:
+          type: boolean
+        updated:
+          type: string
+      type: object
+    type: array
 host: '{{.Host}}'
 info:
   contact: {}
@@ -141,6 +185,23 @@ paths:
             $ref: '#/definitions/model.MangaInfo'
             type: object
       summary: get manga chapter list
+  /check/chapter/{chapter_id}:
+    post:
+      parameters:
+      - description: ' '
+        in: path
+        name: chapter_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PictureList'
+            type: object
+      summary: check chapter all picture download again
   /download:
     post:
       parameters:

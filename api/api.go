@@ -26,11 +26,8 @@ func Search(context *gin.Context) {
 // @Router /chapters [get]
 func Chapters(context *gin.Context) {
 	mangaUrl := context.Query("manga_url")
-
 	manga := &model.Manga{Link:mangaUrl}
-
 	has, _ := lib.XEngine().Get(manga)
-
 	IManga, err := manhuagui.NewManga(manga)
 
 	if err != nil {
@@ -61,7 +58,7 @@ func Chapters(context *gin.Context) {
 // @Param download_list body model.ChapterRowList true " "
 // @Success 200 {object} model.ChapterList
 // @Router /download [POST]
-func DownLoad(context *gin.Context) {
+func Download(context *gin.Context) {
 	var chapterRowList model.ChapterRowList
 	if err := context.BindJSON(&chapterRowList); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
@@ -83,4 +80,43 @@ func DownLoad(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, chapterList)
+}
+
+// @Summary check chapter all picture download again
+// @Produce  json
+// @Param chapter_id path int true " "
+// @Success 200 {object} model.PictureList
+// @Router /check/chapter/{chapter_id} [POST]
+func ReDwonloadChapter(ctx *gin.Context) {
+	chapterId := ctx.Param("chapter_id")
+
+	var chapter model.Chapter
+	has, _ := lib.XEngine().Id(chapterId).Get(&chapter)
+	if !has {
+		ctx.JSON(http.StatusNotFound, gin.H{"error":"chapter_id "+chapterId})
+		return
+	}
+
+	picture := new(model.Picture)
+	total, _ := lib.XEngine().Where("chapter_id = ?", chapter.Id).Count(picture)
+
+	if total != int64(chapter.Total) {
+		ctx.JSON(http.StatusForbidden, gin.H{"error":"chapter_id "+chapterId})
+		return
+	}
+
+	if total == int64(chapter.Count) {
+		ctx.JSON(http.StatusAlreadyReported, gin.H{"error":"already download"})
+		return
+	}
+
+	reDownloadPicList := make([]model.Picture, 0)
+	lib.XEngine().Where("chapter_id = ? AND status = ?", chapter.Id, false).Find(&reDownloadPicList)
+
+	for _, pic := range reDownloadPicList {
+		func(pic model.Picture) {
+			lib.PictureDownloadChan <- &pic
+		}(pic)
+	}
+	ctx.JSON(http.StatusOK, reDownloadPicList)
 }

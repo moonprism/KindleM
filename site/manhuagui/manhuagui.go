@@ -71,7 +71,7 @@ func (IManga *Manga) SyncInfo() (err error) {
 
 func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList, err error) {
 	var resBack []model.ChapterRow
-	for eqIndex := 1; eqIndex >= 0; eqIndex-- {
+	for eqIndex := 2; eqIndex >= 0; eqIndex-- {
 		IManga.Doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
 			UlSelection.Find("li").Each(func(i2 int, LiSelection *goquery.Selection) {
 				var node  model.ChapterRow
