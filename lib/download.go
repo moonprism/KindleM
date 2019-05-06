@@ -5,8 +5,6 @@ import (
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/package/util"
 	"os"
-	"path"
-	"strings"
 )
 
 func DownloadPicture(picture *model.Picture) {
@@ -19,20 +17,18 @@ func DownloadPicture(picture *model.Picture) {
 		return
 	}
 
-	basePath := fmt.Sprintf("download/%d/%d", picture.MangaId, picture.ChapterId)
+	basePath := fmt.Sprintf("download/%s", picture.Path())
 
 	// download image
 	_ = os.MkdirAll(basePath, os.ModePerm)
 
-	srcArr := strings.Split(picture.Src, "?")
-
-	file := fmt.Sprintf("%s/%d%s", basePath, picture.Id, path.Ext(srcArr[0]))
+	file := fmt.Sprintf("download/%s", picture.File())
 	if err:= util.DownloadPicture(picture.Src, picture.Referer, file); err != nil {
 		println(err.Error())
 		return
 	}
 
-	picture.File = file
 	picture.Status = true
-	XEngine().Id(picture.Id).Update(picture)
+	XEngine().Id(picture.Id).Cols("status").Update(picture)
+	XEngine().Id(picture.ChapterId).Incr("count").Update(&model.Chapter{})
 }

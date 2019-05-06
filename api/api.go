@@ -76,14 +76,11 @@ func DownLoad(context *gin.Context) {
 		if !has {
 			lib.XEngine().Insert(&chapter)
 		}
-		chapterList = append(chapterList, chapter)
-	}
-
-	for _, chapter := range chapterList {
-		if chapter.Status == false {
-				manhuagui.SyncPictures(&chapter)
-				lib.XEngine().Id(chapter.Id).Update(chapter)
+		if !chapter.Status() {
+			manhuagui.SyncPictures(&chapter)
+			lib.XEngine().Id(chapter.Id).Update(chapter)
 		}
+		chapterList = append(chapterList, chapter)
 	}
 
 	context.JSON(http.StatusOK, chapterList)

@@ -6,9 +6,13 @@ type Chapter struct {
 	Id	int64	`xorm:"pk autoincr 'id'" json:"id"`
 	ChapterRow `xorm:"extends -"`
 	Total	int	`json:"total"`
-	Status	bool	`json:"status"`
+	Count	int `json:"count"`
 	Created time.Time `xorm:"created" json:"created"`
 	Updated time.Time `xorm:"updated" json:"updated"`
+}
+
+func (ch *Chapter) Status()  bool {
+	return ch.Total != 0 && ch.Count == ch.Total
 }
 
 // ChapterRow is chapter base info

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/moonprism/kindleM/lib"
 	"github.com/moonprism/kindleM/model"
@@ -99,10 +101,23 @@ func SyncPictures(chapter *model.Chapter) {
 	defer cancel()
 
 	var pageSelectHtml string
-
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(chapter.Link),
-		chromedp.Sleep(5 * time.Second),
+		// Action wait for cookie setup completed
+		chromedp.ActionFunc(func(ctx context.Context, h cdp.Executor) (err error) {
+			for i:=0; i<5; i++ {
+				cookies, err := network.GetAllCookies().Do(ctx, h)
+				if err != nil {
+					return err
+				}
+				if len(cookies) < 3 {
+					time.Sleep(1*time.Second)
+				} else {
+					break
+				}
+			}
+			return
+		}),
 		chromedp.Reload(),
 		chromedp.WaitVisible("#pageSelect", chromedp.ByQuery),
 		chromedp.InnerHTML(`#pageSelect`, &pageSelectHtml, chromedp.ByQuery),
