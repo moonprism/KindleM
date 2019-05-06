@@ -89,19 +89,18 @@ func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList,
 	return
 }
 
-func SyncPictures(chapter *model.Chapter) {
-
+func ChapterProcess(chapter *model.Chapter) (err error) {
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
 		//chromedp.WithDebugf(log.Printf),
 	)
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 60 * time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 500 * time.Second)
 	defer cancel()
 
 	var pageSelectHtml string
-	err := chromedp.Run(ctx,
+	err = chromedp.Run(ctx,
 		chromedp.Navigate(chapter.Link),
 		// Action wait for cookie setup completed
 		chromedp.ActionFunc(func(ctx context.Context, h cdp.Executor) (err error) {
@@ -122,15 +121,17 @@ func SyncPictures(chapter *model.Chapter) {
 		chromedp.WaitVisible("#pageSelect", chromedp.ByQuery),
 		chromedp.InnerHTML(`#pageSelect`, &pageSelectHtml, chromedp.ByQuery),
 	)
-
 	if err != nil {
-		log.Printf("http request error: %v", err)
+		return
 	}
 
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageSelectHtml))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageSelectHtml))
+	if err != nil {
+		return
+	}
 
 	chapter.Total, _ = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
-
+	lib.XEngine().Id(chapter.Id).Update(chapter)
 	for page := 1; page <= chapter.Total; page++ {
 		picture := model.Picture{
 			MangaId: chapter.MangaId,
@@ -143,7 +144,11 @@ func SyncPictures(chapter *model.Chapter) {
 			chromedp.AttributeValue(`#mangaFile`, "src", &picture.Src, nil, chromedp.ByQuery),
 			chromedp.Click(`#next`, chromedp.ByQuery),
 		)
-		go lib.DownloadPicture(&picture)
+		if err != nil {
+			return
+		}
+		// download picture process
+		lib.PictureDownloadChan <- &picture
 	}
 
 	return

@@ -29,6 +29,17 @@ func DownloadPicture(picture *model.Picture) {
 	}
 
 	picture.Status = true
-	XEngine().Id(picture.Id).Cols("status").Update(picture)
-	XEngine().Id(picture.ChapterId).Incr("count").Update(&model.Chapter{})
+	session := XEngine().NewSession()
+	defer session.Close()
+	_, err := session.ID(picture.Id).Cols("status").Update(picture)
+	if err != nil {
+		session.Rollback()
+		return
+	}
+	_, err = session.ID(picture.ChapterId).Incr("count").Update(&model.Chapter{})
+	if err != nil {
+		session.Rollback()
+		return
+	}
+	session.Commit()
 }

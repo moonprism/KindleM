@@ -77,8 +77,7 @@ func DownLoad(context *gin.Context) {
 			lib.XEngine().Insert(&chapter)
 		}
 		if !chapter.Status() {
-			manhuagui.SyncPictures(&chapter)
-			lib.XEngine().Id(chapter.Id).Update(chapter)
+			lib.ChapterFetchChan <- &chapter
 		}
 		chapterList = append(chapterList, chapter)
 	}
