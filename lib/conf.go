@@ -16,6 +16,7 @@ var Config struct {
 	} `yaml:"storage"`
 	Log struct {
 		File string `yaml:"file"`
+		Level string `yaml:"level"`
 	} `yaml:"log"`
 }
 

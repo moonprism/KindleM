@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"bufio"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -10,6 +9,18 @@ func InitLogrus () {
 	if err := setFile(Config.Log.File); err != nil {
 		log.Fatalf("%v\n", err)
 		return
+	}
+
+	// set log level
+	switch Config.Log.Level {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+		break
+	case "info":
+		log.SetLevel(log.InfoLevel)
+		break
+	default:
+		log.SetLevel(log.TraceLevel)
 	}
 }
 
@@ -33,7 +44,6 @@ func setFile(filePath string) (err error) {
 		return
 	}
 
-	write := bufio.NewWriter(file)
-	log.SetOutput(write)
+	log.SetOutput(file)
 	return
 }

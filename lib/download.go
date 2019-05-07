@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/package/util"
+	log "github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -23,8 +24,9 @@ func DownloadPicture(picture *model.Picture) {
 	_ = os.MkdirAll(basePath, os.ModePerm)
 
 	file := fmt.Sprintf("download/%s", picture.File())
+	log.Debugf("start download picture %s fetch from : %s", file, picture.Src)
 	if err:= util.DownloadPicture(picture.Src, picture.Referer, file); err != nil {
-		println(err.Error())
+		log.Errorln(err.Error())
 		return
 	}
 

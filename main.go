@@ -11,7 +11,6 @@ import (
 	"github.com/moonprism/kindleM/site/manhuagui"
 	"github.com/swaggo/gin-swagger"              // gin-swagger middleware
 	"github.com/swaggo/gin-swagger/swaggerFiles" // swagger embed files
-	"log"
 )
 
 func WorkPicture() {
@@ -22,10 +21,7 @@ func WorkPicture() {
 
 func WorkChapter() {
 	for cha := range lib.ChapterFetchChan {
-		err := manhuagui.ChapterProcess(cha)
-		if err != nil {
-			log.Print(err.Error())
-		}
+		manhuagui.ChapterProcess(cha)
 		lib.XEngine().Id(cha.Id).Update(cha)
 	}
 }

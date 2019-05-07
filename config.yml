@@ -6,4 +6,5 @@ storage:
   password: "123456"
 
 log:
-  file: "/dev/null"
+  file: "./log/app.log"
+  level: "debug"

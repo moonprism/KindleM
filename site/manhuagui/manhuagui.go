@@ -11,7 +11,7 @@ import (
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/package/util"
 	"github.com/pkg/errors"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"time"
@@ -34,7 +34,7 @@ func NewManga(model *model.Manga) (IManga *Manga, err error) {
 func Search(query string) (result []model.Manga) {
 	doc, err := util.GetFetchDocument(fmt.Sprintf("https://www.manhuagui.com/s/%s.html", query))
 	if err != nil {
-		log.Printf("http request error: %v", err)
+		log.Errorf("http request error: %v", err)
 	}
 
 	doc.Find(".book-result").First().Find(".cf").Each(func(i int, selection *goquery.Selection) {
@@ -66,6 +66,7 @@ func (IManga *Manga) SyncInfo() (err error) {
 	} else {
 		err = errors.New("go-query .book-cont not found in "+manga.Link)
 	}
+	log.Debugf("manga %s is sync", manga.Name)
 	return
 }
 
@@ -99,13 +100,15 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 	ctx, cancel = context.WithTimeout(ctx, 500 * time.Second)
 	defer cancel()
 
+	log.Debugf("start chapter process in chromedp : %s", chapter.Link)
 	var pageSelectHtml string
 	err = chromedp.Run(ctx,
 		chromedp.Navigate(chapter.Link),
 		// Action wait for cookie setup completed
 		chromedp.ActionFunc(func(ctx context.Context, h cdp.Executor) (err error) {
+			var cookies []*network.Cookie
 			for i:=0; i<5; i++ {
-				cookies, err := network.GetAllCookies().Do(ctx, h)
+				cookies, err = network.GetAllCookies().Do(ctx, h)
 				if err != nil {
 					return err
 				}
@@ -114,6 +117,9 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 				} else {
 					break
 				}
+			}
+			if len(cookies) < 3 {
+				log.Errorf("set cookie error in chromedp : %s", chapter.Link)
 			}
 			return
 		}),
@@ -130,7 +136,13 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 		return
 	}
 
-	chapter.Total, _ = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
+	chapter.Total, err = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
+	if err != nil {
+		return err
+	}
+
+	log.Debugf("fetch total page %d from : %s", chapter.Total, chapter.Link)
+
 	lib.XEngine().Id(chapter.Id).Update(chapter)
 	for page := 1; page <= chapter.Total; page++ {
 		picture := model.Picture{
