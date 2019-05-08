@@ -20,8 +20,11 @@ type ChapterRow struct {
 	MangaId	int64	`xorm:"index 'manga_id'" json:"manga_id"`
 	Title	string	`json:"title"`
 	Link	string	`xorm:"unique" json:"link"`
+	Index	int	`json:"index"`
 }
 
 type ChapterRowList []ChapterRow
 
-type ChapterList []Chapter 
+type ChapterList []Chapter
+
+type ChapterIdList []int64

@@ -6,6 +6,7 @@ import (
 	"github.com/moonprism/kindleM/model"
 	"github.com/moonprism/kindleM/site/manhuagui"
 	"net/http"
+	"sort"
 )
 
 // @Summary search manga
@@ -115,8 +116,59 @@ func ReDwonloadChapter(ctx *gin.Context) {
 
 	for _, pic := range reDownloadPicList {
 		func(pic model.Picture) {
-			lib.PictureDownloadChan <- &pic
+			manhuagui.PictureDownloadChan <- &pic
 		}(pic)
 	}
 	ctx.JSON(http.StatusOK, reDownloadPicList)
+}
+
+// @Summary CountProcess
+// @Produce  json
+// @Success 200 {object} model.ProcessCount
+// @Router /count/process [GET]
+func CountProcess(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, model.ProcessCount{
+		Chromedp: len(lib.ChapterFetchChan),
+		Picture: len(manhuagui.PictureDownloadChan),
+	})
+}
+
+// @Summary download manga list
+// @Produce  json
+// @Success 200 {object} model.MangaDetailList
+// @Router /manga [GET]
+func DownloadMangaList(ctx *gin.Context) {
+	mangaMap := make(map[int64]model.Manga)
+	lib.XEngine().Limit(5, 0).OrderBy("id desc").Find(&mangaMap)
+	keys := make([]int64, 0, len(mangaMap))
+	for k := range mangaMap {
+		keys = append(keys, k)
+	}
+	chapterList := make(model.ChapterList, 0)
+	lib.XEngine().In("manga_id", keys).OrderBy("id desc").Find(&chapterList)
+
+	chaptersMap := map[int64]model.ChapterList{}
+	var response model.MangaDetailList
+	for _, chapter := range chapterList {
+		chaptersMap[chapter.MangaId] = append(chaptersMap[chapter.MangaId], chapter)
+	}
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	for i:=len(keys)-1; i>=0 ; i-- {
+		response = append(response, model.MangaDetail{
+			Manga: mangaMap[keys[i]],
+			ChapterList: chaptersMap[keys[i]],
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+// @Summary download chapter list
+// @Produce  json
+// @Param download_list body model.ChapterRowList true " "
+// @Success 200 {object} model.ChapterList
+// @Router /download [POST]
+func GenerateManga(ctx gin.Context) {
+
 }

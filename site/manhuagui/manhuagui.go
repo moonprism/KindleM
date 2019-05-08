@@ -19,13 +19,26 @@ import (
 
 const MANHUAGUI_URL  = "https://www.manhuagui.com"
 
-type Manga struct {
+var PictureDownloadChan = make(chan *model.Picture, 500)
+
+// init start works(chan) process image download
+func init() {
+	for i := 0; i < 1; i++ {
+		go func() {
+			for pic := range PictureDownloadChan {
+				lib.DownloadPicture(pic)
+			}
+		}()
+	}
+}
+
+type MangaManage struct {
 	*model.Manga
 	Doc *goquery.Document
 }
 
-func NewManga(model *model.Manga) (IManga *Manga, err error) {
-	IManga = new(Manga)
+func NewManga(model *model.Manga) (IManga *MangaManage, err error) {
+	IManga = new(MangaManage)
 	IManga.Manga = model
 	IManga.Doc, err = util.GetFetchDocument(model.Link)
 	return
@@ -52,7 +65,7 @@ func Search(query string) (result []model.Manga) {
 	return result
 }
 
-func (IManga *Manga) SyncInfo() (err error) {
+func (IManga *MangaManage) SyncInfo() (err error) {
 	mangaDoc := IManga.Doc.Find(".book-cont").First()
 	manga := IManga.Manga
 	if mangaDoc.Nodes != nil {
@@ -70,7 +83,7 @@ func (IManga *Manga) SyncInfo() (err error) {
 	return
 }
 
-func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList, err error) {
+func (IManga *MangaManage) FetchChapterRowList() (chapterRowList model.ChapterRowList, err error) {
 	var resBack []model.ChapterRow
 	for eqIndex := 2; eqIndex >= 0; eqIndex-- {
 		IManga.Doc.Find(".chapter-list").Eq(eqIndex).Find("ul").Each(func(i int, UlSelection *goquery.Selection) {
@@ -86,6 +99,9 @@ func (IManga *Manga) FetchChapterRowList() (chapterRowList model.ChapterRowList,
 			}
 			resBack = []model.ChapterRow{}
 		})
+	}
+	for index := range chapterRowList {
+		chapterRowList[index].Index = index
 	}
 	return
 }
@@ -107,7 +123,7 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 		// Action wait for cookie setup completed
 		chromedp.ActionFunc(func(ctx context.Context, h cdp.Executor) (err error) {
 			var cookies []*network.Cookie
-			for i:=0; i<5; i++ {
+			for i:=0; i<10; i++ {
 				cookies, err = network.GetAllCookies().Do(ctx, h)
 				if err != nil {
 					return err
@@ -136,6 +152,8 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 		return
 	}
 
+	log.Debugln(doc.Html())
+
 	chapter.Total, err = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
 	if err != nil {
 		return err
@@ -159,8 +177,8 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 		if err != nil {
 			return
 		}
-		// download picture process
-		lib.PictureDownloadChan <- &picture
+		log.Debugf("process picture dwonload : %s", picture.Src)
+		PictureDownloadChan <- &picture
 	}
 
 	return

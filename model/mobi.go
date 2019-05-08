@@ -26,3 +26,8 @@ type MobiXChapter struct {
 	Created time.Time `xorm:"created"`
 	Updated time.Time `xorm:"updated"`
 }
+
+type MobiInfo struct {
+	MobiMeta
+	ChapterIdList	`json:"chapter_id_list"`
+}

@@ -8,3 +8,6 @@ storage:
 log:
   file: "./log/app.log"
   level: "debug"
+
+work:
+  chromedp: 1
