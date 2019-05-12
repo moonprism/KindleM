@@ -8,6 +8,8 @@ definitions:
         type: string
       id:
         type: integer
+      index:
+        type: integer
       link:
         type: string
       manga_id:
@@ -19,6 +21,9 @@ definitions:
       updated:
         type: string
     type: object
+  model.ChapterIdList:
+    items: {}
+    type: array
   model.ChapterList:
     items:
       properties:
@@ -27,6 +32,8 @@ definitions:
         created:
           type: string
         id:
+          type: integer
+        index:
           type: integer
         link:
           type: string
@@ -42,6 +49,8 @@ definitions:
     type: array
   model.ChapterRow:
     properties:
+      index:
+        type: integer
       link:
         type: string
       manga_id:
@@ -52,6 +61,8 @@ definitions:
   model.ChapterRowList:
     items:
       properties:
+        index:
+          type: integer
         link:
           type: string
         manga_id:
@@ -83,11 +94,107 @@ definitions:
       updated:
         type: string
     type: object
+  model.MangaDetail:
+    properties:
+      ChapterList:
+        items:
+          properties:
+            count:
+              type: integer
+            created:
+              type: string
+            id:
+              type: integer
+            index:
+              type: integer
+            link:
+              type: string
+            manga_id:
+              type: integer
+            title:
+              type: string
+            total:
+              type: integer
+            updated:
+              type: string
+          type: object
+        type: array
+      alias:
+        type: string
+      author:
+        type: string
+      cover:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      intro:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      source:
+        type: integer
+      updated:
+        type: string
+    type: object
+  model.MangaDetailList:
+    items:
+      properties:
+        ChapterList:
+          items:
+            properties:
+              count:
+                type: integer
+              created:
+                type: string
+              id:
+                type: integer
+              index:
+                type: integer
+              link:
+                type: string
+              manga_id:
+                type: integer
+              title:
+                type: string
+              total:
+                type: integer
+              updated:
+                type: string
+            type: object
+          type: array
+        alias:
+          type: string
+        author:
+          type: string
+        cover:
+          type: string
+        created:
+          type: string
+        id:
+          type: integer
+        intro:
+          type: string
+        link:
+          type: string
+        name:
+          type: string
+        source:
+          type: integer
+        updated:
+          type: string
+      type: object
+    type: array
   model.MangaInfo:
     properties:
       ChapterRowList:
         items:
           properties:
+            index:
+              type: integer
             link:
               type: string
             manga_id:
@@ -115,6 +222,36 @@ definitions:
       source:
         type: integer
       updated:
+        type: string
+    type: object
+  model.Mobi:
+    properties:
+      author:
+        type: string
+      cover:
+        type: string
+      created:
+        type: string
+      id:
+        type: integer
+      processInfo:
+        type: string
+      title:
+        type: string
+      updated:
+        type: string
+    type: object
+  model.MobiInfo:
+    properties:
+      author:
+        type: string
+      chapter_id_list:
+        $ref: '#/definitions/model.ChapterIdList'
+        description: swag wtf?
+        type: object
+      cover:
+        type: string
+      title:
         type: string
     type: object
   model.Picture:
@@ -161,6 +298,13 @@ definitions:
           type: string
       type: object
     type: array
+  model.ProcessCount:
+    properties:
+      chromedp:
+        type: integer
+      picture:
+        type: integer
+    type: object
 host: '{{.Host}}'
 info:
   contact: {}
@@ -202,6 +346,17 @@ paths:
             $ref: '#/definitions/model.PictureList'
             type: object
       summary: check chapter all picture download again
+  /count/process:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProcessCount'
+            type: object
+      summary: CountProcess
   /download:
     post:
       parameters:
@@ -221,6 +376,38 @@ paths:
             $ref: '#/definitions/model.ChapterList'
             type: object
       summary: download chapter list
+  /manga:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.MangaDetailList'
+            type: object
+      summary: download manga list
+  /manga/generate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: mobi_info
+        required: true
+        schema:
+          $ref: '#/definitions/model.MobiInfo'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Mobi'
+            type: object
+      summary: generate manga
   /search/{query}:
     get:
       operationId: search-manga

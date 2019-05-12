@@ -225,6 +225,9 @@ func GenerateManga(ctx *gin.Context) {
 		}
 	}
 
-	epubInfo.Generate(fmt.Sprintf("./runtime/%d.epub", mobi.Id))
+	epubFile := fmt.Sprintf("./runtime/%d.epub", mobi.Id)
+	epubInfo.Generate(epubFile)
+	cmd := exec.Command("kindleGen", "-dont_append_source", epubFile)
+	cmd.Run()
 	ctx.JSON(http.StatusOK, mobi)
 }

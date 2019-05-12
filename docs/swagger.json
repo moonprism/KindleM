@@ -61,6 +61,23 @@
                 }
             }
         },
+        "/count/process": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "CountProcess",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.ProcessCount"
+                        }
+                    }
+                }
+            }
+        },
         "/download": {
             "post": {
                 "produces": [
@@ -85,6 +102,55 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/model.ChapterList"
+                        }
+                    }
+                }
+            }
+        },
+        "/manga": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "download manga list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.MangaDetailList"
+                        }
+                    }
+                }
+            }
+        },
+        "/manga/generate": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "generate manga",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "mobi_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.MobiInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/model.Mobi"
                         }
                     }
                 }
@@ -131,6 +197,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "index": {
+                    "type": "integer"
+                },
                 "link": {
                     "type": "string"
                 },
@@ -148,6 +217,10 @@
                 }
             }
         },
+        "model.ChapterIdList": {
+            "type": "array",
+            "items": {}
+        },
         "model.ChapterList": {
             "type": "array",
             "items": {
@@ -160,6 +233,9 @@
                         "type": "string"
                     },
                     "id": {
+                        "type": "integer"
+                    },
+                    "index": {
                         "type": "integer"
                     },
                     "link": {
@@ -183,6 +259,9 @@
         "model.ChapterRow": {
             "type": "object",
             "properties": {
+                "index": {
+                    "type": "integer"
+                },
                 "link": {
                     "type": "string"
                 },
@@ -199,6 +278,9 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "index": {
+                        "type": "integer"
+                    },
                     "link": {
                         "type": "string"
                     },
@@ -246,6 +328,149 @@
                 }
             }
         },
+        "model.MangaDetail": {
+            "type": "object",
+            "properties": {
+                "ChapterList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "count": {
+                                "type": "integer"
+                            },
+                            "created": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "link": {
+                                "type": "string"
+                            },
+                            "manga_id": {
+                                "type": "integer"
+                            },
+                            "title": {
+                                "type": "string"
+                            },
+                            "total": {
+                                "type": "integer"
+                            },
+                            "updated": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "alias": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "intro": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "integer"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MangaDetailList": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ChapterList": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "created": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "index": {
+                                    "type": "integer"
+                                },
+                                "link": {
+                                    "type": "string"
+                                },
+                                "manga_id": {
+                                    "type": "integer"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "total": {
+                                    "type": "integer"
+                                },
+                                "updated": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "alias": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "cover": {
+                        "type": "string"
+                    },
+                    "created": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "intro": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "integer"
+                    },
+                    "updated": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "model.MangaInfo": {
             "type": "object",
             "properties": {
@@ -254,6 +479,9 @@
                     "items": {
                         "type": "object",
                         "properties": {
+                            "index": {
+                                "type": "integer"
+                            },
                             "link": {
                                 "type": "string"
                             },
@@ -294,6 +522,51 @@
                     "type": "integer"
                 },
                 "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Mobi": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "processInfo": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MobiInfo": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "chapter_id_list": {
+                    "description": "swag wtf?",
+                    "type": "object",
+                    "$ref": "#/definitions/model.ChapterIdList"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -362,6 +635,17 @@
                     "updated": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "model.ProcessCount": {
+            "type": "object",
+            "properties": {
+                "chromedp": {
+                    "type": "integer"
+                },
+                "picture": {
+                    "type": "integer"
                 }
             }
         }
