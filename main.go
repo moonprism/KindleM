@@ -54,7 +54,7 @@ func main() {
 
 	// generate file
 	r.GET("/manga", api.DownloadMangaList)
-	r.POST("/manga/generate", )
+	r.POST("/manga/generate", api.GenerateManga)
 
 	if err := r.Run(":8001"); err != nil {
 		fmt.Printf("run gin : %v\n", err)

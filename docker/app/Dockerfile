@@ -1,6 +1,7 @@
 FROM alpine:latest
 
 RUN apk add bash
+RUN apk add webp
 
 RUN mkdir /app
 RUN mkdir /app/download

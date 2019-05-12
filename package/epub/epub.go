@@ -3,43 +3,43 @@ package epub
 import (
 	"fmt"
 	"github.com/bmaupin/go-epub"
-	"github.com/moonprism/kindleM/model"
 	"log"
 )
 
 type MakeEpubInfo struct {
-	Resource	[] model.Chapter
+	epub 	*epub.Epub
 	Title	string
 	Author	string
 	Cover	string
 }
 
-func (info *MakeEpubInfo) make() {
-	e := epub.NewEpub(info.Title)
+func NewEpub(title string) *MakeEpubInfo {
+	return &MakeEpubInfo{
+		epub: epub.NewEpub(title),
+		Title: title,
+	}
+}
 
+func (info *MakeEpubInfo) MakeChapter(name string) {
+
+}
+
+func (info *MakeEpubInfo) AddImage(fileName string) {
+	imgTag := `<img src="%s" alt="Cover Image" />`
+	imgpath, _ := info.epub.AddImage(fileName, "")
+	_, _ = info.epub.AddSection(fmt.Sprintf(imgTag, imgpath), "", "", "")
+}
+
+func (info *MakeEpubInfo) Generate(fileName string) {
 	if info.Author != "" {
-		e.SetAuthor(info.Author)
+		info.epub.SetAuthor(info.Author)
 	}
 
 	if info.Cover != "" {
-		e.SetCover(info.Cover, "")
+		info.epub.SetAuthor(info.Cover)
 	}
 
-	imgTag := `<img src="%s" alt="Cover Image" />`
-
-	for _, chapter := range info.Resource {
-
-		// todo search all picture in the chapter
-		imgpath, err := e.AddImage(folder+file.Name(), "")
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = e.AddSection(fmt.Sprintf(imgTag, imgpath), "", "", "")
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	err := e.Write("xy.epub")
+	err := info.epub.Write(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}

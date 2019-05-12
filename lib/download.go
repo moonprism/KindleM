@@ -9,7 +9,7 @@ import (
 )
 
 func DownloadPicture(picture *model.Picture) {
-	has, _ := XEngine().Get(picture)
+	has, _ := XEngine().Where("src=?", picture.Src).Get(picture)
 	if !has {
 		XEngine().Insert(picture)
 	}

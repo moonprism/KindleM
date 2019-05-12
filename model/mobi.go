@@ -4,7 +4,7 @@ import "time"
 
 type Mobi struct {
 	Id	int64	`xorm:"pk autoincr 'id'"`
-	MobiMeta
+	MobiMeta	`xorm:"extends -"`
 	MobiFile	string	`xorm:"'mobi_file'" json:"mobi_file"`
 	EpubFile	string	`xorm:"'epub_file'" json:"epub_file"`
 	ProcessInfo	string	`xorm:"text 'process_info'"`
@@ -29,5 +29,6 @@ type MobiXChapter struct {
 
 type MobiInfo struct {
 	MobiMeta
-	ChapterIdList	`json:"chapter_id_list"`
+	// swag wtf?
+	ChapterIdList ChapterIdList	`json:"chapter_id_list"`
 }

@@ -26,10 +26,15 @@ func init() {
 	for i := 0; i < 1; i++ {
 		go func() {
 			for pic := range PictureDownloadChan {
+				// setDownloadLine(pic)
 				lib.DownloadPicture(pic)
 			}
 		}()
 	}
+}
+
+func setDownloadLine(pic *model.Picture) {
+	pic.Src = strings.Replace(pic.Src, "", "", 1)
 }
 
 type MangaManage struct {
@@ -101,7 +106,7 @@ func (IManga *MangaManage) FetchChapterRowList() (chapterRowList model.ChapterRo
 		})
 	}
 	for index := range chapterRowList {
-		chapterRowList[index].Index = index
+		chapterRowList[index].Index = len(chapterRowList) - index
 	}
 	return
 }
@@ -109,7 +114,7 @@ func (IManga *MangaManage) FetchChapterRowList() (chapterRowList model.ChapterRo
 func ChapterProcess(chapter *model.Chapter) (err error) {
 	ctx, cancel := chromedp.NewContext(
 		context.Background(),
-		//chromedp.WithDebugf(log.Printf),
+		// chromedp.WithDebugf(log2.Printf),
 	)
 	defer cancel()
 
@@ -140,9 +145,13 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 			return
 		}),
 		chromedp.Reload(),
-		chromedp.WaitVisible("#pageSelect", chromedp.ByQuery),
+		// check 联通 line
+		chromedp.WaitVisible(`#servList > ul > li:nth-child(4) > a`, chromedp.ByQuery),
+		chromedp.Click(`#servList > ul > li:nth-child(4) > a`, chromedp.ByQuery),
+		chromedp.WaitVisible(`#pageSelect`, chromedp.ByQuery),
 		chromedp.InnerHTML(`#pageSelect`, &pageSelectHtml, chromedp.ByQuery),
 	)
+
 	if err != nil {
 		return
 	}
@@ -151,8 +160,6 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 	if err != nil {
 		return
 	}
-
-	log.Debugln(doc.Html())
 
 	chapter.Total, err = strconv.Atoi(doc.Find("option").Last().AttrOr("value", "0"))
 	if err != nil {
@@ -163,15 +170,34 @@ func ChapterProcess(chapter *model.Chapter) (err error) {
 
 	lib.XEngine().Id(chapter.Id).Update(chapter)
 	for page := 1; page <= chapter.Total; page++ {
-		picture := model.Picture{
+		picture := model.Picture {
 			MangaId: chapter.MangaId,
 			ChapterId: chapter.Id,
 			Index: page,
 			Referer: chapter.Link,
 		}
 		err = chromedp.Run(ctx,
+			chromedp.ActionFunc(func(ctx context.Context, h cdp.Executor) (err error) {
+				var cookies []*network.Cookie
+				for i:=0; i<10; i++ {
+					cookies, err = network.GetAllCookies().Do(ctx, h)
+					if err != nil {
+						return err
+					}
+					if len(cookies) < 4 {
+						time.Sleep(1*time.Second)
+					} else {
+						break
+					}
+				}
+				if len(cookies) < 4 {
+					log.Errorf("set cookie error in chromedp : %s", chapter.Link)
+				}
+				return
+			}),
 			chromedp.WaitVisible(`#mangaFile`, chromedp.ByQuery),
 			chromedp.AttributeValue(`#mangaFile`, "src", &picture.Src, nil, chromedp.ByQuery),
+			chromedp.WaitVisible(`#next`, chromedp.ByQuery),
 			chromedp.Click(`#next`, chromedp.ByQuery),
 		)
 		if err != nil {
