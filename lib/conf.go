@@ -4,6 +4,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 var Config struct {
@@ -20,6 +21,8 @@ var Config struct {
 	} `yaml:"log"`
 }
 
+const RuntimeDir = "./runtime"
+
 // init parse config should be run in the beginning
 func init() {
 	content, err := ioutil.ReadFile("./config.yml")
@@ -30,5 +33,16 @@ func init() {
 	err = yaml.Unmarshal(content, &Config)
 	if err != nil {
 		log.Fatalf("unmarshal : %v", err)
+	}
+
+	// create runtime dir
+	_, err = os.Stat(RuntimeDir)
+
+	if os.IsNotExist(err) {
+		err = os.Mkdir(RuntimeDir, os.ModePerm)
+
+		if err != nil {
+			log.Fatalf("mkdir runtime dir failed : %v", err)
+		}
 	}
 }
